@@ -17,9 +17,15 @@ s = sched.scheduler(time.time, time.sleep)
 def run(sc):
     global enteredTrade
     global rsiPeriod
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("---------------------------------------")
     print("Getting historical quotes")
-    # Get 5 minute bar data for Ford stock
-    historical_quotes = rh.get_historical_quotes("TSLA", "5minute", "day")
+    print("---------------------------------------")
+    print("Current Time          : ", current_time)
+
+    # Get 5 minute bar data for Starbucks stock
+    historical_quotes = rh.get_historical_quotes("SBUX", "5minute", "day")
     closePrices = []
     #format close prices for RSI
     currentIndex = 0
@@ -33,19 +39,20 @@ def run(sc):
                 print("Resetting support and resistance")
             if(float(key['close_price']) < currentSupport or currentSupport == 0):
                currentSupport = float(key['close_price'])
-               print("Current Support is : ")
-               print(currentSupport)
+               print("Current Support is    : ", currentSupport)
+
+               # print(currentSupport)
             if(float(key['close_price']) > currentResistance):
                currentResistance = float(key['close_price'])
-               print("Current Resistance is : ")
-               print(currentResistance)
+               print("Current Resistance is : ", currentResistance)
+               # print(currentResistance)
             closePrices.append(float(key['close_price']))
         currentIndex += 1
     DATA = np.array(closePrices)
     if (len(closePrices) > (rsiPeriod)):
         #Calculate RSI
         rsi = ti.rsi(DATA, period=rsiPeriod)
-        instrument = rh.instruments("TSLA")[0]
+        instrument = rh.instruments("SBUX")[0]
         #If rsi is less than or equal to 30 buy
         if rsi[len(rsi) - 1] <= 30 and float(key['close_price']) <= currentSupport and not enteredTrade:
             print("Buying RSI is below 30!")
@@ -56,7 +63,8 @@ def run(sc):
             print("Selling RSI is above 70!")
             rh.place_sell_order(instrument, 1)
             enteredTrade = False
-        print(rsi)
+        print("RSI                   : ", rsi)
+        print("---------------------------------------")
     #call this method again every 5 minutes for new price changes
     s.enter(300, 1, run, (sc,))
 
