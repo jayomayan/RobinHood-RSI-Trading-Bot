@@ -8,18 +8,18 @@ import time
 #Youtube : Jacob Amaral
 # Log in to Robinhood app (will prompt for two-factor)
 rh = Robinhood()
-rh.login(username="username", password="password")
+rh.login(username="jayomayan", password="R0adtrip$$")
 #Setup our variables, we haven't entered a trade yet and our RSI period
 enteredTrade = False
 rsiPeriod = 5
 #Initiate our scheduler so we can keep checking every minute for new price changes
 s = sched.scheduler(time.time, time.sleep)
-def run(sc): 
+def run(sc):
     global enteredTrade
     global rsiPeriod
     print("Getting historical quotes")
     # Get 5 minute bar data for Ford stock
-    historical_quotes = rh.get_historical_quotes("F", "5minute", "day")
+    historical_quotes = rh.get_historical_quotes("TSLA", "5minute", "day")
     closePrices = []
     #format close prices for RSI
     currentIndex = 0
@@ -45,7 +45,7 @@ def run(sc):
     if (len(closePrices) > (rsiPeriod)):
         #Calculate RSI
         rsi = ti.rsi(DATA, period=rsiPeriod)
-        instrument = rh.instruments("F")[0]
+        instrument = rh.instruments("TSLA")[0]
         #If rsi is less than or equal to 30 buy
         if rsi[len(rsi) - 1] <= 30 and float(key['close_price']) <= currentSupport and not enteredTrade:
             print("Buying RSI is below 30!")
