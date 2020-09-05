@@ -10,7 +10,11 @@ import time
 rh = Robinhood()
 rh.login(username="jayomayan", password="R0adtrip$$")
 #Setup our variables, we haven't entered a trade yet and our RSI period
-enteredTrade = False
+enteredTradeq = input("Have you entered trade [y/n]?\n")
+if enteredTradeq == "y" or enteredTradeq == "Y":
+    enteredTrade = True
+else:
+    enteredTrade = False
 rsiPeriod = 5
 #Initiate our scheduler so we can keep checking every minute for new price changes
 s = sched.scheduler(time.time, time.sleep)
@@ -67,6 +71,5 @@ def run(sc):
         print("---------------------------------------")
     #call this method again every 5 minutes for new price changes
     s.enter(300, 1, run, (sc,))
-
 s.enter(1, 1, run, (s,))
 s.run()
