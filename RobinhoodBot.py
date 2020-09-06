@@ -44,7 +44,6 @@ def run(sc):
             if(float(key['close_price']) < currentSupport or currentSupport == 0):
                currentSupport = float(key['close_price'])
                print("Current Support is    : ", currentSupport)
-
                # print(currentSupport)
             if(float(key['close_price']) > currentResistance):
                currentResistance = float(key['close_price'])
