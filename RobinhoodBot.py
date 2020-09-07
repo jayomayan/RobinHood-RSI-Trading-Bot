@@ -13,14 +13,22 @@ rh.login(username="jayomayan", password="R0adtrip$$")
 enteredTradeq = input("Have you entered trade [y/n]?\n")
 if enteredTradeq == "y" or enteredTradeq == "Y":
     enteredTrade = True
+    lastBuyPrice = input("What is your last buy price?\n")
+    lastBuyPrice =  float(lastBuyPrice)
 else:
     enteredTrade = False
 rsiPeriod = 5
+symbol = input("Please enter Stock Symbol?\n")
+stockQuantity = input("How many quantity for trading?\n")
 #Initiate our scheduler so we can keep checking every minute for new price changes
 s = sched.scheduler(time.time, time.sleep)
 def run(sc):
     global enteredTrade
     global rsiPeriod
+    global lastBuyPrice
+    global lastSellPrice
+    global symbol
+
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("---------------------------------------")
@@ -29,7 +37,7 @@ def run(sc):
     print("Current Time          : ", current_time)
 
     # Get 5 minute bar data for Starbucks stock
-    historical_quotes = rh.get_historical_quotes("SBUX", "5minute", "day")
+    historical_quotes = rh.get_historical_quotes(symbol, "5minute", "day")
     closePrices = []
     #format close prices for RSI
     currentIndex = 0
@@ -55,17 +63,23 @@ def run(sc):
     if (len(closePrices) > (rsiPeriod)):
         #Calculate RSI
         rsi = ti.rsi(DATA, period=rsiPeriod)
-        instrument = rh.instruments("SBUX")[0]
+        instrument = rh.instruments(symbol)[0]
         #If rsi is less than or equal to 30 buy
         if rsi[len(rsi) - 1] <= 30 and float(key['close_price']) <= currentSupport and not enteredTrade:
-            print("Buying RSI is below 30!")
-            rh.place_buy_order(instrument, 1)
+            print(">>>Buying RSI is below 30!")
+            rh.place_buy_order(instrument, stockQuantity)
             enteredTrade = True
+            lastBuyPrice = float(key['close_price'])
+            print("Buying Price          : ", lastBuyPrice)
         #Sell when RSI reaches 70
-        if rsi[len(rsi) - 1] >= 70 and float(key['close_price']) >= currentResistance and currentResistance > 0 and enteredTrade:
-            print("Selling RSI is above 70!")
-            rh.place_sell_order(instrument, 1)
+        if rsi[len(rsi) - 1] >= 70 and float(key['close_price']) >= currentResistance and currentResistance > 0 and enteredTrade and float(key['close_price']) > lastBuyPrice:
+            print(">>>Selling RSI is above 70!")
+            rh.place_sell_order(instrument, stockQuantity)
             enteredTrade = False
+            lastBuyPrice = 0
+            lastSellPrice = float(key['close_price'])
+            print("Selling Price         : ", lastSellPrice)
+        print("Close Price           : ", float(key['close_price']))
         print("RSI                   : ", rsi)
         print("---------------------------------------")
     #call this method again every 5 minutes for new price changes
